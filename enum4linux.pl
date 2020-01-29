@@ -47,7 +47,7 @@ use File::Basename;
 use Data::Dumper;
 use Scalar::Util qw(tainted);
 
-my $VERSION="0.8.9";
+my $VERSION="0.8.9-jae";
 my $verbose = 0;
 my $debug = 0;
 my $global_fail_limit = 1000;     # no command line option yet
@@ -321,6 +321,10 @@ print "Username ......... '$global_username'\n";
 print "Password ......... '$global_password'\n";
 print "Known Usernames .. " . join(", ", @global_known_usernames) . "\n";
 print "\n";
+
+if ($> != 0) {
+	print "[W] Recommendation: run with sudo or root-level permissions.\n"
+}
 
 # Basic enumeration, check session
 get_workgroup();
