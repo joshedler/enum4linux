@@ -388,6 +388,9 @@ sub get_workgroup {
 		unless (defined($global_workgroup)) {
 			print "[E] Can\'t find workgroup/domain\n";
 			print "\n";
+			# avoid annoying warnings of "Use of uninitialized value $global_workgroup in concatenation (.) or string at ./enum4linux.pl line xyz"
+			# verified with perlconsole that undef and empty string evalue true in unless() statements
+			$global_workgroup = '';
 			return undef;
 		}
 		unless (defined($global_workgroup) and $global_workgroup =~ /^[A-Za-z0-9_\.-]+$/) {
@@ -452,7 +455,15 @@ sub make_session {
 	# Use this info to set workgroup if possible
 	unless ($global_workgroup) {
 		($global_workgroup) = $os_info =~ /Domain=\[([^]]*)\]/;
-		print "[+] Got domain/workgroup name: $global_workgroup\n";
+		unless (defined($global_workgroup)) {
+			print "[E] Still can\'t find workgroup/domain\n";
+			print "\n";
+			# avoid annoying warnings of "Use of uninitialized value $global_workgroup in concatenation (.) or string at ./enum4linux.pl line xyz"
+			# verified with perlconsole that undef and empty string evalue true in unless() statements
+			$global_workgroup = '';
+		} else {
+			print "[+] Got domain/workgroup name: $global_workgroup\n";
+		}
 	}
 }
 
@@ -465,7 +476,12 @@ sub get_os_info {
 	chomp $os_info;
 	if (defined($os_info)) {
 		($os_info) = $os_info =~ /(Domain=[^\n]+)/s;
-		print "[+] Got OS info for $global_target from smbclient: $os_info\n";
+		unless (defined($os_info)) {
+			print "[E] Can\'t get OS info with smbclient\n";
+			print "\n";
+		} else {
+			print "[+] Got OS info for $global_target from smbclient: $os_info\n";
+		}
 	}
 
 	$command = "rpcclient -W '$global_workgroup' -U'$global_username'\%'$global_password' -c 'srvinfo' '$global_target' 2>&1";
