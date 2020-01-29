@@ -64,7 +64,7 @@ my $global_passpol = 0;
 my $global_rid_range = "500-550,1000-1050";
 my $global_known_username_string = "administrator,guest,krbtgt,domain admins,root,bin,none";
 my @dependent_programs = qw(nmblookup net rpcclient smbclient);
-my @optional_dependent_programs = qw(polenum.py ldapsearch);
+my @optional_dependent_programs = qw(polenum ldapsearch);
 my %odp_present = ();
 my $null_session_test = 0;
 my %opts;
@@ -478,9 +478,9 @@ sub get_os_info {
 
 sub enum_password_policy {
 	print_heading("Password Policy Information for $global_target");
-	my $command = "polenum.py '$global_username':'$global_password'\@'$global_target' 2>&1";
-	unless ($odp_present{"polenum.py"}) {
-		print "[E] Dependent program \"polenum.py\" not present.  Skipping this check.  Download polenum from http://labs.portcullis.co.uk/application/polenum/\n\n";
+	my $command = "polenum '$global_username':'$global_password'\@'$global_target' 2>&1";
+	unless ($odp_present{"polenum"}) {
+		print "[E] Dependent program \"polenum\" not present.  Skipping this check.  Download polenum from http://labs.portcullis.co.uk/application/polenum/\n\n";
 		return 0;
 	}
 	print "[V] Attempting to get Password Policy info with command: $command\n" if $verbose;
@@ -492,11 +492,11 @@ sub enum_password_policy {
 		} elsif ($passpol_info =~ /Error Getting Password Policy: Connect error/) {
 			print "[E] Can't connect to host with supplied credentials.\n";
 		} else {
-			print "[E] Unexpected error from polenum.py:\n";
+			print "[E] Unexpected error from polenum:\n";
 			print $passpol_info;
 		}
 	} else {
-		print "[E] polenum.py gave no output.\n";
+		print "[E] polenum gave no output.\n";
 	}
 	$command = "rpcclient -W '$global_workgroup' -U'$global_username'\%'$global_password' '$global_target' -c \"getdompwinfo\" 2>&1";
 	print "[V] Attempting to get Password Policy info with command: $command\n" if $verbose;
